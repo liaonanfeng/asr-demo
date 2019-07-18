@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+<form action="/asr/upload" method="POST" enctype="multipart/form-data">
+    视频类型：<input type="text" name="videoType"/>
+    文件：<input type="file" name="file"/>
+    <input type="submit" />
+</form>
+<p>文件路径：<input type="text" name="fileUrl" id="fileUrl"/></p>
+<p>下载文件1：<input type="button" value="下载文件" onclick="download()"/></p>
+
+<script  language="JavaScript">
+
+    function download() {
+        window.location.href = "/asr/download?filePath=" + document.getElementById("fileUrl").innerText;
+    }
+
+</script>
+</body>
+</html>

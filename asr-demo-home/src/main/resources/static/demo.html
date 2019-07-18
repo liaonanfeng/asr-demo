@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>asr-demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        .white_content {
+            display: none;
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            width: 45%;
+            height: 15%;
+            padding: 20px;
+            background-color: white;
+            border:1px solid #000;
+            z-index:1002;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="container" style="margin-left:5%;width:1000px;height:500px;">
+        <div id="button-tool" style="width:100%;height:10%">
+            <input type="button" value="视频上传" onclick="openDialog()"/>
+            <input type="button" value="查询" onclick="query()"/>
+            <input type="button" value="批量语音识别" onclick="asr()"/>
+        </div>
+        <div id="grad" style="width:100%;height:50%;">
+            <table id="showtable" style="width:100%;height:100%;" border="1" cellspacing="0" cellpadding="1">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" onclick="toSelect(this)"/>全选</th>
+                    <th hidden="hidden">id</th>
+                    <th>文件名称</th>
+                    <th hidden="hidden">视频类型id</th>
+                    <th>视频类型</th>
+                    <th hidden="hidden">状态id</th>
+                    <th>状态</th>
+                    <th>字幕文件名称</th>
+                    <th>上传时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="tbMain"></tbody>
+            </table>
+        </div>
+        <div id="upload" class="white_content">
+            <form id="form" action="/asr/upload" method="POST" enctype="multipart/form-data">
+                <label>视频类型</label>
+                <select name="videoType">
+                    <option value="OTHER">其他</option>
+                    <option value="ENG">英语</option>
+                </select>
+                文件：<input id="file" type="file" name="file"/>
+                <input id="submit" type="submit" value="上传"/>
+            </form>
+            <div style="text-align:center;margin-top:20px">
+                <input type="button" value="关闭窗口" style="text-align:center" onclick="closeDialog()"/>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script src="http://malsup.github.io/jquery.form.js"></script>
+<script  type="text/javascript">
+
+    window.onload = function(){
+      query();
+      $("#form").ajaxForm({
+        beforeSubmit: function(){
+            $("#submit").val("正在上传中...");
+        },
+        success: function(data){
+            if(data.success){
+                $("#submit").val("上传");
+                closeDialog();
+                query();
+            }else{
+                $("#submit").val("上传");
+                alert(data.message);
+            }
+        }
+      });
+    }
+
+    function asr(){
+        var ids=[];
+        var input = document.getElementsByTagName("input");
+        for (var i=0;i<input.length ;i++ ){
+            if(input[i].type=="checkbox"){
+                if(input[i].checked){
+                    if(input[i].id!='')
+                        ids.push(input[i].id);
+                }
+            }
+        }
+        if(ids.length==0){
+            alert("未选择要识别的视频！");
+            return false;
+        }
+        $.ajax({
+        type: "POST",
+        url: "/asr",
+        data: '{"ids":['+ids+']}',
+        contentType:"application/json;charset=utf-8",
+        success: function(data){
+          if(data.success)
+            query()
+          else
+            alert(data.message)
+        }
+      }) 
+    }
+
+     function query(){
+        $.ajax({
+        type: "Get",
+        url: "/asr/listAll",
+        success: function(data){
+          var per= data.resultList
+          var tbody = document.getElementById('tbMain');
+          tbody.innerHTML = '';  
+        
+          for(var i = 0;i < per.length; i++){ //遍历一下json数据  
+             var trow = getDataRow(per[i]); //定义一个方法,返回tr数据  
+             tbody.appendChild(trow);
+          }
+        }
+      }) 
+     }
+
+     function getDataRow(h){  
+         var row = document.createElement('tr'); //创建行
+
+         var checkBoxCell = document.createElement('td');//复选框
+         var checkbox=document.createElement("input");
+         checkbox.setAttribute("type","checkbox");
+         checkbox.id = h.id;
+         checkBoxCell.appendChild(checkbox); //填充数据
+         row.appendChild(checkBoxCell); //加入行
+           
+         var idCell = document.createElement('td');//id
+         idCell.innerHTML = h.id; //填充数据
+         idCell.style.display = 'none';
+         row.appendChild(idCell); //加入行，下面类似
+
+         var fileNameCell = document.createElement('td');//文件名
+         fileNameCell.innerHTML = h.orginName;
+         row.appendChild(fileNameCell);
+
+         var videoTypeIdCell = document.createElement('td');//视频类型id
+         videoTypeIdCell.innerHTML = h.videoType;
+         videoTypeIdCell.style.display = 'none';
+         row.appendChild(videoTypeIdCell);
+
+         var videoTypeCell = document.createElement('td');//视频类型
+         if(h.videoType == 'ENG')
+           videoTypeCell.innerHTML = '英语';
+         else
+            videoTypeCell.innerHTML = '其他';
+         row.appendChild(videoTypeCell);
+
+         var statusIdCell = document.createElement('td');//状态id
+         statusIdCell.innerHTML = h.status;
+         statusIdCell.style.display = 'none';
+         row.appendChild(statusIdCell);
+           
+         var statusCell = document.createElement('td');//状态
+         if(h.status == 0)
+           statusCell.innerHTML = '待语音识别';
+         else if(h.status == 1)
+            statusCell.innerHTML = '语音识别中';
+         else if(h.status == 2)
+            statusCell.innerHTML = '语音识别完成';
+         else if(h.status == 3)
+            statusCell.innerHTML = '语音识别失败';
+         row.appendChild(statusCell);
+
+         var srtNameCell = document.createElement('td');//字幕文件
+         srtNameCell.innerHTML = h.srtName;
+         row.appendChild(srtNameCell);
+           
+         var cTimeCell = document.createElement('td');//上传时间
+         cTimeCell.innerHTML = getFormatDateByLong(h.ctime);
+         row.appendChild(cTimeCell);
+     
+         //到这里，json中的数据已经添加到表格中，下面为每行末尾添加下载按钮  
+         var downloadCell = document.createElement('td');  
+         row.appendChild(downloadCell);  
+         var btnDownload = document.createElement('input'); //创建一个input控件  
+         btnDownload.setAttribute('type','button'); //type="button"  
+         btnDownload.setAttribute('value','字幕文件下载');
+
+         //下载操作  
+         btnDownload.addEventListener("click",function(){
+            var file = this.parentElement.parentElement.children[7].innerHTML;
+            var statusId = this.parentElement.parentElement.children[5].innerHTML;
+            if(file && statusId==2)
+                download(file);
+            else
+                alert("识别完成才能进行下载！");
+         })
+         downloadCell.appendChild(btnDownload);  //把下载按钮加入td，别忘了
+
+         return row; //返回tr数据      
+     }
+
+    function download(fileName){
+        window.location.href = "/asr/download?file=" + fileName;
+    }
+
+
+    function openDialog() {
+        $("#file").val("");
+        document.getElementById('upload').style.display='block';
+    }
+
+    function closeDialog(){
+        document.getElementById('upload').style.display='none';
+    }
+
+    function getFormatDateByLong(l, pattern) {
+        return getFormatDate(new Date(l), pattern);
+    }
+
+    function toSelect(b){
+        var input = document.getElementsByTagName("input");
+        for (var i=0;i<input.length ;i++ ){
+            if(input[i].type=="checkbox")
+                input[i].checked = b.checked;
+        }
+    }
+
+   /**
+    *转换日期对象为日期字符串
+    * @param l long值
+    * @param pattern 格式字符串,例如：yyyy-MM-dd hh:mm:ss
+    * @return 符合要求的日期字符串
+    */
+    function getFormatDate(date, pattern) {
+        if (date == undefined) {
+            date = new Date();
+        }
+        if (pattern == undefined) {
+            pattern = "yyyy-MM-dd hh:mm:ss";
+        }
+        return date.format(pattern);
+    }
+
+    //扩展Date的format方法
+    Date.prototype.format = function (format) {
+        var o = {
+            "M+": this.getMonth() + 1,
+            "d+": this.getDate(),
+            "h+": this.getHours(),
+            "m+": this.getMinutes(),
+            "s+": this.getSeconds(),
+            "q+": Math.floor((this.getMonth() + 3) / 3),
+            "S": this.getMilliseconds()
+        }
+        if (/(y+)/.test(format)) {
+            format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(format)) {
+                format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length));
+            }
+        }
+        return format;
+    }
+
+</script>
+</body>
+</html>

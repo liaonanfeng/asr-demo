@@ -1,0 +1,40 @@
+spring:
+  profiles:
+    # dev,stable,test,prod,pre
+    active: local
+  http:
+      multipart:
+        # 默认支持文件上传
+        enabled: true
+        # 最大支持文件大小
+        max-file-size: 1024Mb
+        # 大于该阈值的文件会写到磁盘上。这里的值可以使用MB或KB后缀来表明是兆字节还是千字节。（默认值：0。）
+        file-size-threshold: 0
+        # 最大支持请求大小
+        max-request-size: 1024Mb
+  thymeleaf:
+      # 界面修改立即生效或者视图解析器设置缓存为false来实现
+      cache: false
+      # 让controller层到static文件夹寻找xx.html(src/main/resources/static)
+      prefix: classpath:/static/
+
+mybatis:
+  mapper-locations: classpath*:/mapper/*Mapper.xml
+  type-aliases-package: com.ewt360.asr.dal.model
+  configuration:
+    map-underscore-to-camel-case: true
+    use-generated-keys: false
+
+swagger:
+  enabled: true
+  title: BigData Data Governance API
+  description: 铭师堂-大数据-语音识别Demo,开发者：王超
+  base-package: com.ewt360.asr.home.controller
+  base-path: /**
+  exclude-path: /error,/ops/**
+  version: @project.version@
+
+druid:
+  login:
+    username: admin
+    password: admin

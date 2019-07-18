@@ -1,0 +1,60 @@
+server:
+  port: 8060
+  connection-timeout: 5000
+  tomcat:
+    # The maximum number of request processing threads to be created by this Connector, which therefore determines the maximum number of simultaneous requests that can be handled.
+    # If not specified, this attribute is set to 200.
+    max-threads: 500
+    # Note that once the limit has been reached, the operating system may still accept connections based on the acceptCount setting.The default value varies by connector type.
+    # For BIO the default is the value of maxThreads unless an Executor is used in which case the default will be the value of maxThreads from the executor.
+    #For NIO the default is 10000. For APR/native, the default is 8192.
+    max-connections: 2000
+    # The maximum queue length for incoming connection requests when all possible request processing threads are in use. Any requests received when the queue is full will be refused. The default value is 100
+    accept-count: 500
+
+asr:
+  upload:
+    #存上传文件的目录
+    dir: /root/asr/sample/asrEwt/data/
+  app:
+    #百度AI平台上申请的appid
+    id: 16731889
+    #百度AI平台上申请的appkey
+    key: SRoT08xFdVUPP9gTmRXqdkP3
+    #百度AI平台上申请的appsecret
+    secret: ZbKg3WTAVqQxwrwiIDxNIn95AuckNBuo
+    #程序入口目录
+    dir: /root/asr/sample/asrEwt/
+  log:
+    #日志存放目录
+    dir: /root/asr/sample/asrEwt/log/
+
+spring:
+  application:
+    name: @project.artifactId@
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://10.0.11.205:3306/asr_demo?useUnicode=true&zeroDateTimeBehavior=convertToNull&characterEncoding=UTF-8&autoReconnect=true
+    username: root
+    password: 12345678
+    driver-class-name: com.mysql.jdbc.Driver
+    druid:
+      initialSize: 1
+      maxActive: 100
+      minIdle: 5
+      maxWait: 60000
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      maxOpenPreparedStatements: 20
+      removeAbandonedTimeout: 1800
+      logAbandoned: true
+      removeAbandoned: true
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      # ,wall,slf4j 加入这个就不能创建flywary使用
+      filters: stat
+      useUnfairLock: true

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+    <h1>Spring Boot file upload example</h1>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="text" name="sourceType" value="PYTHON"/><br/>
+        <input type="text" name="userName" value="廖仉根"/><br/>
+        <input type="text" name="apiId" value="100"/><br/>
+        <input type="file" name="file"/><br/><br/>
+        <input type="submit" value="Submit"/>
+    </form>
+
+</body>
+</html>

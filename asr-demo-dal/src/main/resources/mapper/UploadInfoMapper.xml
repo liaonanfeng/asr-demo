@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ewt360.asr.dal.mapper.UploadInfoMapper" >
+    <insert id="save" parameterType="com.ewt360.asr.dal.model.UploadInfoDO">
+        INSERT INTO upload_info(orgin_name,file_name,status,video_type,srt_name,create_by)
+        VALUES (#{orginName},#{fileName},#{status},#{videoType},#{srtName},#{createBy})
+    </insert>
+
+    <select id="listAll" resultType="com.ewt360.asr.facade.base.vo.UploadInfoVO">
+        select * from upload_info
+    </select>
+
+    <select id="listByCondition" resultType="long">
+        select id from upload_info where status = 1
+    </select>
+
+    <select id="listByIds" parameterType="list" resultType="com.ewt360.asr.dal.model.UploadInfoDO">
+        select * from upload_info where
+        id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="update" parameterType="com.ewt360.asr.dal.model.UploadInfoDO">
+        UPDATE upload_info
+        <trim prefix="set" suffixOverrides=",">
+            <if test="orginName!=null">
+                orgin_name= #{orginName},
+            </if>
+            <if test="fileName!=null">
+                file_name= #{fileName},
+            </if>
+            <if test="status!=null">
+                status= #{status},
+            </if>
+            <if test="videoType!=null">
+                video_type= #{videoType},
+            </if>
+            <if test="srtName!=null">
+                srt_name= #{srtName},
+            </if>
+            <if test="createBy!=null">
+                create_by= #{createBy},
+            </if>
+        </trim>
+        WHERE id= #{id}
+    </update>
+</mapper>
